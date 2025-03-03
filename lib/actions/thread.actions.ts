@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import Thread from "../models/thread.model";
 import { connectToDB } from "../mongoose";
 import User from "../models/user.model";
+import path from "path";
 
 
 interface Params {
@@ -35,4 +36,36 @@ export async function createThread ({
   }
 
   revalidatePath(path);
+}
+
+export async function fetchThreadPosts (pageNumber = 1, pageSize = 20) {
+  connectToDB();
+
+  // Pagination
+  const skipAmount = (pageNumber - 1) * pageSize;
+
+  // FETCH POSTS THAT HAVE NO PARENTS / NOT COMMENTS
+  const threadsQuery = Thread
+    .find({ parentId: { $in: [null, undefined]}})
+    .sort({ createdAt: 'desc' })
+    .skip(skipAmount)
+    .limit(pageSize)
+    .populate({ path: 'author', model: User })
+    .populate({ // Getting the comments
+      path: 'children',
+      populate: { // recursion for the comments thread
+        path: 'author',
+        model: User,
+        select: "_id name parentId image" // return only this selected
+      }
+    })
+
+    const totalThreadsCount = await Thread.countDocuments({ parentId: { $in: [null, undefined]}})
+
+    const threads = await threadsQuery.exec();
+
+    const isNext = totalThreadsCount > skipAmount + threads.length;
+
+    return { threads, isNext }
+
 }
