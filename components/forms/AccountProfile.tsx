@@ -21,6 +21,8 @@ import { UserValidation } from "@/lib/validations/user";
 import { ChangeEvent, useState } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { isBase64Image } from "@/lib/utils";
+import { updateuser } from "@/lib/actions/user.actions";
+import { usePathname, useRouter } from "next/navigation";
 
 const AccountProfile = ({
   user,
@@ -39,6 +41,9 @@ const AccountProfile = ({
 
   const [files, setFiles] = useState<File[]>([]);
   const { startUpload } = useUploadThing("media");
+
+  const router = useRouter();
+  const pathname = usePathname();
 
   const form = useForm({
     resolver: zodResolver(UserValidation),
@@ -88,9 +93,21 @@ const AccountProfile = ({
       }
     }
 
-    // TODO: Update user profile
-    
-    console.log(values);
+    // Update user profile
+    await updateuser({
+      userId: user.id,
+      username: values.username,
+      name: values.name,
+      bio: values.bio,
+      image: values.profile_photo,
+      path: pathname
+    })
+
+    if (pathname === '/profile/edit') {
+      router.back();
+    } else {
+      router.push('/');
+    }
   }
 
   return (
@@ -133,6 +150,7 @@ const AccountProfile = ({
                   onChange={(e) => handleImage(e, field.onChange)}
                 />
               </FormControl>
+              <FormMessage />
             </FormItem>
           )}
         />
