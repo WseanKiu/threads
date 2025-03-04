@@ -31,6 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider
+      dynamic
       afterSignOutUrl={"/sign-in"}
       appearance={{
         baseTheme: dark,
