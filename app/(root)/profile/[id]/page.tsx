@@ -7,13 +7,17 @@ import { profileTabs } from "@/constants";
 import Image from "next/image";
 import ThreadsTab from "@/components/shared/ThreadsTab";
 
+type Params = Promise<{
+  id: string
+}>
 
-const page = async ({params}: { params: { id: string }}) => {
+const page = async ({ params }: { params: Params}) => {
+  const { id } = await params;
   const user = await currentUser();
 
   if (!user) return null;
 
-  const userInfo = await fetchUser(params.id);
+  const userInfo = await fetchUser(id);
 
   if (!userInfo?.onboarded) redirect('/onboarding');
   return (
