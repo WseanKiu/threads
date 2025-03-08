@@ -29,7 +29,7 @@ const communitySchema = new mongoose.Schema({
       ref: 'Thread'
     }
   ],
-  onboarded: [
+  members: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User'
