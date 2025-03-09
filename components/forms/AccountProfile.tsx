@@ -24,7 +24,7 @@ import { isBase64Image } from "@/lib/utils";
 import { updateuser } from "@/lib/actions/user.actions";
 import { usePathname, useRouter } from "next/navigation";
 
-const AccountProfile = ({
+const  AccountProfile = ({
   user,
   btnTitle,
 }: {
@@ -49,6 +49,7 @@ const AccountProfile = ({
     resolver: zodResolver(UserValidation),
     defaultValues: {
       profile_photo: user?.image || "",
+      name: user?.name || "",
       username: user?.username || "",
       bio: user?.bio || "",
     },
@@ -87,13 +88,11 @@ const AccountProfile = ({
     if (hasImageChanged) {
       const imgRes = await startUpload(files);
 
-      if (imgRes && imgRes[0].fileUrl) {
-        console.log(imgRes[0])
-        values.profile_photo = imgRes[0].fileUrl;
+      if (imgRes && imgRes[0]?.ufsUrl) {
+        values.profile_photo = imgRes[0].ufsUrl;
       }
     }
 
-    // Update user profile
     await updateuser({
       userId: user.id,
       username: values.username,
@@ -212,7 +211,7 @@ const AccountProfile = ({
             </FormItem>
           )}
         />
-        <Button type="submit" className="bg-primary-500">Submit</Button>
+        <Button type="submit" className="bg-primary-500">{btnTitle}</Button>
       </form>
     </Form>
   );
